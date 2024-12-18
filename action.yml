@@ -403,7 +403,7 @@ runs:
                         echo "# CONFIG_KSU_SUSFS_SUS_SU is not set" >> arch/${{ inputs.arch }}/configs/${{ inputs.config }} >/dev/null
                     fi
                     cd sus
-                    cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ../KernelSU/
+                    #cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ../KernelSU/
                     cp ./kernel_patches/50_add_susfs_in_${{ inputs.ksu_susfs-version }}.patch ../
                     cp ./kernel_patches/fs/susfs.c ../fs/
                     cp ./kernel_patches/include/linux/susfs.h ../include/linux/
