@@ -407,7 +407,7 @@ runs:
                     cp ./kernel_patches/50_add_susfs_in_${{ inputs.ksu_susfs-version }}.patch ../
                     cp ./kernel_patches/fs/susfs.c ../fs/
                     cp ./kernel_patches/include/linux/susfs.h ../include/linux/
-                    cd ../KernelSU && patch -p1 --ignore-whitespace -F 100 < 10_enable_susfs_for_ksu.patch
+                    #cd ../KernelSU && patch -p1 --ignore-whitespace -F 100 < 10_enable_susfs_for_ksu.patch
                     cd ../ && patch -p1 --ignore-whitespace -F 100 < 50_add_susfs_in_${{ inputs.ksu_susfs-version }}.patch
                 fi
                 if [ ${{ inputs.ksu-lkm }} = true ]; then
