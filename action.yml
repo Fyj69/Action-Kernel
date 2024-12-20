@@ -57,6 +57,16 @@ inputs:
     description: "Use 3rd KernelSU"
     required: false
     default: ""
+  ksu_susfs-url:
+    required: false
+    default: ''
+  ksu_susfs-branch:
+    required: false
+    default: main
+  ksu_susfs-version:
+    description: 'ksu_susfs default branch'
+    required: false
+    default: "main"  
   ksu-lkm:
     description: "Build KernelSU as a loadable kernel module"
     required: false
@@ -381,6 +391,24 @@ runs:
                     fi
                         curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s "$KVER"
                     fi
+                fi
+                if [ ! -z ${{ inputs.ksu_susfs-url }} ]; then
+                   echo "::group:: Initializing KernelSU susfs"
+                    git clone -b ${{ inputs.ksu_susfs-branch }} --depth=1 ${{ inputs.ksu_susfs-url }} sus
+                    CONFIGS="CONFIG_KSU_SUSFS CONFIG_KSU_SUSFS_SUS_PATH CONFIG_KSU_SUSFS_SUS_MOUNT CONFIG_KSU_SUSFS_SUS_KSTAT CONFIG_KSU_SUSFS_SUS_OVERLAYFS CONFIG_KSU_SUSFS_TRY_UMOUNT CONFIG_KSU_SUSFS_SPOOF_UNAME CONFIG_KSU_SUSFS_ENABLE_LOG CONFIG_KSU_SUSFS_OPEN_REDIRECT"
+                    for CONFIG in $CONFIGS; do
+                        echo "$CONFIG=y" >> arch/${{ inputs.arch }}/configs/${{ inputs.config }} >/dev/null
+                    done
+                    if ! grep -q "CONFIG_KPROBES=y" "arch/${{ inputs.arch }}/configs/${{ inputs.config }}" ; then
+                        echo "# CONFIG_KSU_SUSFS_SUS_SU is not set" >> arch/${{ inputs.arch }}/configs/${{ inputs.config }} >/dev/null
+                    fi
+                    cd sus
+                    cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ../KernelSU/
+                    cp ./kernel_patches/50_add_susfs_in_${{ inputs.ksu_susfs-version }}.patch ../
+                    cp ./kernel_patches/fs/susfs.c ../fs/
+                    cp ./kernel_patches/include/linux/susfs.h ../include/linux/
+                    cd ../KernelSU && patch -p1 --ignore-whitespace -F 100 < 10_enable_susfs_for_ksu.patch
+                    cd ../ && patch -p1 --ignore-whitespace -F 100 < 50_add_susfs_in_${{ inputs.ksu_susfs-version }}.patch
                 fi
                 if [ ${{ inputs.ksu-lkm }} = true ]; then
                     if grep -q "CONFIG_KPROBES=y" "arch/${{ inputs.arch }}/configs/${{ inputs.config }}" ; then
