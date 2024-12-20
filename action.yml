@@ -66,7 +66,7 @@ inputs:
   ksu_susfs-version:
     description: 'ksu_susfs default branch'
     required: false
-    default: "main"  
+    default: "main"
   ksu-lkm:
     description: "Build KernelSU as a loadable kernel module"
     required: false
